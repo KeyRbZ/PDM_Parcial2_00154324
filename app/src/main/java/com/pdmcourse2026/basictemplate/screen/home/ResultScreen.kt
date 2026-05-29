@@ -11,9 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pdmcourse2026.basictemplate.domain.model.Post
@@ -66,11 +66,19 @@ fun PostsScreen(
                 )
             )
         },
-        floatingActionButton = {
-            Button (onClick = { showCreateDialog = true  }){
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Nuevo volver a Votar")
+        bottomBar = {
+            BottomAppBar(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = "Nuevo (Volver a votar)",
+                )
             }
-        }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -140,14 +148,14 @@ fun PostItem(post: Post) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "#${post.id} · ${post.title.replaceFirstChar { it.uppercaseChar() }}",
+                text = "#${post.id} · ${post.name.replaceFirstChar { it.uppercaseChar() }}",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = post.body,
+                text = post.votes,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -187,26 +195,26 @@ fun CreatePostDialog(
     onDismiss: () -> Unit,
     onConfirm: (title: String, body: String) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    var body by remember { mutableStateOf("") }
-    val isValid = title.isNotBlank() && body.isNotBlank()
+    var name by remember { mutableStateOf("") }
+    var votes by remember { mutableStateOf("") }
+    val isValid = name.isNotBlank() && votes.isNotBlank()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Crear nuevo post") },
+        title = { Text("Nuevo") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Título") },
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nombre") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
-                    value = body,
-                    onValueChange = { body = it },
-                    label = { Text("Cuerpo del post") },
+                    value = votes,
+                    onValueChange = { votes = it },
+                    label = { Text("Vota por la comida que más te guste") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     maxLines = 5
@@ -214,8 +222,8 @@ fun CreatePostDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onConfirm(title, body) }, enabled = isValid) {
-                Text("Publicar")
+            Button(onClick = { onConfirm(name, votes) }, enabled = isValid) {
+                Text("Votar")
             }
         },
         dismissButton = {

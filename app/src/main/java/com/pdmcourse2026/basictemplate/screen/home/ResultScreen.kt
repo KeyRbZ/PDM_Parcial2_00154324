@@ -4,27 +4,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -32,9 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -46,11 +38,11 @@ import com.pdmcourse2026.basictemplate.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostsScreen(
+fun ResultScreen(
+    onNavigateBack: () -> Unit,
     viewModel: PostViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadPosts()
@@ -71,14 +63,19 @@ fun PostsScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.primary,
             ) {
-                Text(
+                Button(
+                    onClick = onNavigateBack,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = "Nuevo (Volver a votar)",
-                )
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "Nuevo (Volver a votar)",
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-        },
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -87,9 +84,7 @@ fun PostsScreen(
         ) {
             when {
                 state.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
                 state.error != null -> {
@@ -106,128 +101,61 @@ fun PostsScreen(
                         onRefresh = { viewModel.loadPosts() },
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        PostsList(posts = state.posts)
+                        val sortedPosts = state.posts.sortedByDescending { it.votes }
+                        ResultList(posts = sortedPosts)
                     }
                 }
             }
         }
-
-        if (showCreateDialog) {
-            CreatePostDialog(
-                onDismiss = { showCreateDialog = false },
-                onConfirm = { title, body ->
-                    viewModel.createPost(title, body)
-                    showCreateDialog = false
-                }
-            )
-        }
     }
 }
 
 @Composable
-fun PostsList(
-    posts: List<Post>,
-    modifier: Modifier = Modifier
-) {
+fun ResultList(posts: List<Post>) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items = posts, key = { it.id }) { post ->
-            PostItem(post = post)
+            ResultItem(post = post)
         }
     }
 }
 
 @Composable
-fun PostItem(post: Post) {
+fun ResultItem(post: Post) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = "#${post.id} · ${post.name.replaceFirstChar { it.uppercaseChar() }}",
+                text = post.name,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = post.votes,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
 
-@Composable
-fun ErrorState(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = "Ocurrió un error",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.error
-        )
-        Button(onClick = onRetry) {
-            Text("Reintentar")
-        }
-    }
-}
-
-@Composable
-fun CreatePostDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (title: String, body: String) -> Unit
-) {
-    var name by remember { mutableStateOf("") }
-    var votes by remember { mutableStateOf("") }
-    val isValid = name.isNotBlank() && votes.isNotBlank()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Nuevo") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "${post.votes}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
-                OutlinedTextField(
-                    value = votes,
-                    onValueChange = { votes = it },
-                    label = { Text("Vota por la comida que más te guste") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
-                    maxLines = 5
+                Text(
+                    text = "votos",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(name, votes) }, enabled = isValid) {
-                Text("Votar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
-    )
+    }
 }

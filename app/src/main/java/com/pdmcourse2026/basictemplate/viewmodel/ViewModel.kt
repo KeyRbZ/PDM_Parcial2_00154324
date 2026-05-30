@@ -2,7 +2,6 @@ package com.pdmcourse2026.basictemplate.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.ColorImage
 import com.pdmcourse2026.basictemplate.data.api.repository.PostApiRepository
 import com.pdmcourse2026.basictemplate.data.api.repository.PostRepository
 import com.pdmcourse2026.basictemplate.domain.model.Post
@@ -15,7 +14,8 @@ import kotlinx.coroutines.launch
 data class PostUiState(
     val posts: List<Post> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val votedId: Int? = null
 )
 
 class PostViewModel(
@@ -28,7 +28,6 @@ class PostViewModel(
     fun loadPosts() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-
             repository.getPosts()
                 .onSuccess { posts ->
                     _state.update { it.copy(posts = posts, isLoading = false) }
@@ -44,30 +43,21 @@ class PostViewModel(
         }
     }
 
-    fun createPost(title: String, body: String) {
+    fun vote(placeId: Int) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-
-            val newPost = Post(id = 0, name = string, image = ColorImage, votes = string )
-            repository.createPost(newPost)
-                .onSuccess { createdPost ->
-
-                    _state.update {
-                        it.copy(
-                            posts = listOf(createdPost) + it.posts,
-                            isLoading = false
-                        )
-                    }
+            repository.vote(placeId)
+                .onSuccess {
+                    _state.update { it.copy(isLoading = false, votedId = placeId) }
                 }
                 .onFailure { throwable ->
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            error = throwable.message ?: "Error al crear el post"
+                            error = throwable.message ?: "Error al votar"
                         )
                     }
                 }
         }
     }
 }
-

@@ -1,7 +1,5 @@
 package com.pdmcourse2026.basictemplate.data.api.dto
 
-import coil3.ColorImage
-import coil3.Image
 import com.pdmcourse2026.basictemplate.domain.model.Post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,23 +12,22 @@ data class PostDto(
     @SerialName("name")
     val name: String = "",
 
-    @SerialName("image")
-    val image: Image = ColorImage,
+    @SerialName("imageUrl")
+    val imageUrl: String = "",
 
     @SerialName("votes")
-    val votes: String = "",
+    val votes: Int = 0,
     )
 
 fun PostDto.toModel(): Post = Post(
     id = id,
     name = name,
-    image = image,
+    imageUrl = imageUrl,
     votes = votes
 )
 
-fun Post.toDto(): PostDto = PostDto(
-    id = id,
-    name = name,
-    image = image,
-    votes = votes
+@Serializable
+data class VoteRequestDto(
+    @SerialName("optionId")
+    val placeId: Int
 )

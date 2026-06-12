@@ -12,6 +12,10 @@ navigation3 = "1.1.0"
 kotlinxSerializationCore = "1.11.0"
 coil = "3.4.0"
 ktor = "3.5.0"
+room = "2.8.4"
+ksp  = "2.3.9"
+lifecycleRuntimeCompose = "2.9.1"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,10 +44,16 @@ ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.r
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+room-runtime              = { group = "androidx.room", name = "room-runtime",  version.ref = "room" }
+room-ktx                  = { group = "androidx.room", name = "room-ktx",      version.ref = "room" }
+room-compiler             = { group = "androidx.room", name = "room-compiler",  version.ref = "room" }
+lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+material-icons-extended   = { group = "androidx.compose.material", name = "material-icons-extended" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

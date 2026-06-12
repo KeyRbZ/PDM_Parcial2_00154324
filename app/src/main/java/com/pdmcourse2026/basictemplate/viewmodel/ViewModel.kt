@@ -2,8 +2,8 @@ package com.pdmcourse2026.basictemplate.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pdmcourse2026.basictemplate.data.api.repository.PostApiRepository
-import com.pdmcourse2026.basictemplate.data.api.repository.PostRepository
+import com.pdmcourse2026.basictemplate.data.remote.repository.PostApiRepository
+import com.pdmcourse2026.basictemplate.data.remote.repository.PostRepository
 import com.pdmcourse2026.basictemplate.domain.model.Post
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
